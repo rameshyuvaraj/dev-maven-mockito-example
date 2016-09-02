@@ -3,11 +3,19 @@
  */
 package com.yuprojects.utility.CheckDigitUtility;
 
-import org.junit.Assert;
-import org.junit.Test;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import com.yuprojects.utility.CheckDigitUtility.AlgorithmImpl.AAdvantgeCheckDigitImpl;
+import com.yuprojects.utility.CheckDigitUtility.AlgorithmImpl.AsiaMilesCheckDigitImpl;
+import com.yuprojects.utility.CheckDigitUtility.CommonUtils.CommonUtil;
 import com.yuprojects.utility.CheckDigitUtility.UtilityImpl.AirLineImpl;
-import com.yuprojects.utility.CheckDigitUtility.UtilityInterface.AirLineInterface;
+import com.yuprojects.utility.CheckDigitUtility.UtilityInterface.CheckDigitInterface;
 
 /**
  * @author M1023890
@@ -15,30 +23,54 @@ import com.yuprojects.utility.CheckDigitUtility.UtilityInterface.AirLineInterfac
  */
 public class AirLineImplTest {
 
-	AirLineInterface airLine = new AirLineImpl();
-	
+	private AirLineImpl airLine;
+
+	@Before
+	public void setup() {
+		airLine = new AirLineImpl();
+		CommonUtil mockCommonUtil = Mockito.mock(CommonUtil.class);
+		airLine.setCommonUtil(mockCommonUtil);
+		Mockito.when(mockCommonUtil.getAllAirLineCode()).thenReturn(getCodemap());
+	}
+
 	@Test
-	public void testIsValidAirLineCodeSuccess(){
-		boolean result = airLine.isValidAirLineCode("AA");
+	public void testGetAirlineCheckDigitClassSuccessForAAdvantageImpl() {
+		CheckDigitInterface obj = airLine.getAirlineCheckDigitClass("AA");
+		boolean result  = false;
+		if(obj instanceof AAdvantgeCheckDigitImpl){
+			result = true;
+		}
+		Assert.assertTrue(result);
+		
+	}
+
+	@Test
+	public void testGetAirlineCheckDigitClassSuccessForAsiaMilesImpl() {
+		CheckDigitInterface obj = airLine.getAirlineCheckDigitClass("CX");
+		boolean result  = false;
+		if(obj instanceof AsiaMilesCheckDigitImpl){
+			result = true;
+		}
 		Assert.assertTrue(result);
 	}
-	
+
 	@Test
-	public void testIsValidAirLineCodeFailure(){
-		boolean result = airLine.isValidAirLineCode("BA");
-		Assert.assertFalse(result);
+	public void testGetAirlineCheckDigitClassFailCase() {
+		CheckDigitInterface result = airLine.getAirlineCheckDigitClass("ABC");
+		Assert.assertNull(result);
 	}
 	
-	@Test
-	public void testGetAirlineCheckDigitClassSuccess(){
-		String result = airLine.getAirlineCheckDigitClass("AA");
-		Assert.assertEquals(result, "AAdvantgeCheckDigit");
+	/**
+	 * Mock method to return map containing airline code and corresponding
+	 * Algorithm Class.
+	 * 
+	 * @return
+	 */
+	private Map<String, String> getCodemap() {
+		Map<String, String> codeMap = new HashMap<>();
+		codeMap.put("AA", "AAdvantgeCheckDigit");
+		codeMap.put("CX", "AsiaMilesCheckDigit");
+		return codeMap;
 	}
-	
-	@Test
-	public void testGetAirlineCheckDigitClassFail(){
-		String result = airLine.getAirlineCheckDigitClass("BA");
-		Assert.assertEquals(result,"");
-	}
-	
+
 }

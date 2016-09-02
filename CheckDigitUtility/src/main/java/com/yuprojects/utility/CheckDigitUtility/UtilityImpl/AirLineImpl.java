@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.yuprojects.utility.CheckDigitUtility.CommonUtils.CommonUtil;
 import com.yuprojects.utility.CheckDigitUtility.UtilityInterface.AirLineInterface;
+import com.yuprojects.utility.CheckDigitUtility.UtilityInterface.CheckDigitInterface;
 
 /**
  * @author M1023890
@@ -17,44 +18,38 @@ public class AirLineImpl implements AirLineInterface {
 	/**
 	 * CommonUtil class variable contains few utilities.
 	 */
-	private CommonUtil commonUtil = new CommonUtil();
+	private CommonUtil commonUtil;
+
+	public CommonUtil getCommonUtil() {
+		return commonUtil;
+	}
+
+	public void setCommonUtil(CommonUtil commonUtil) {
+		this.commonUtil = commonUtil;
+	}
 
 	/**
-	 * Checks if the airline code is valid airline code.
-	 * 
+	 * Returns the instance of Algorithm impl class with respect to the air line
+	 * code. 
+	 * input: AirlineCode airline code.
+	 * @return checkDigitObjectInstance instance of Algorithm impl class.
 	 */
-	public boolean isValidAirLineCode(String airlineCode) {
-		boolean validity = false;
-		Map<String, String> allAirLineCodes = commonUtil.getAllAirLineCode();
-		if(allAirLineCodes.containsKey(airlineCode)){
-			validity = true;
-		}
-		return validity;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * aero.sita.utility.CheckDigitUtility.UtilityInterface.AirLineInterface#
-	 * getAirlineCheckDigitClass(java.lang.String)
-	 */
-	public String getAirlineCheckDigitClass(String airlineCode) {
+	@SuppressWarnings("unchecked")
+	public CheckDigitInterface getAirlineCheckDigitClass(String airlineCode) {
 		String className = "";
+		Class<CheckDigitInterface> checkDigitObject = null;
+		CheckDigitInterface checkDigitObjectInstance = null;
 		Map<String, String> allAirLineCodes = commonUtil.getAllAirLineCode();
-		if(allAirLineCodes.containsKey(airlineCode)){
+		if (allAirLineCodes.containsKey(airlineCode)) {
 			className = allAirLineCodes.get(airlineCode);
+			try {
+				checkDigitObject = (Class<CheckDigitInterface>) Class.forName(
+						"com.yuprojects.utility.CheckDigitUtility.AlgorithmImpl." + className + "Impl");
+				checkDigitObjectInstance = (CheckDigitInterface) checkDigitObject.newInstance();
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
 		}
-		return className;
+		return checkDigitObjectInstance;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * aero.sita.utility.CheckDigitUtility.UtilityInterface.AirLineInterface#
-	 * getAllAirLineCode()
-	 */
-
-
 }
